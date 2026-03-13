@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Стан дизельної електростанції</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <div class="info">
+            <h1 style="font-size: 1.2rem; letter-spacing: 1px;">🛢️➡️⚡ Дизельна електростанція</h1>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Оновлено: <span id="sync" style="color: var(--accent-yellow)">READY</span></p>
+        </div>
+        <div class="controls">
+            <button id="btnManual" class="btn">Оновити</button>
+            <button id="btnAuto" class="btn">Автооновлення</button>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <main class="primary-grid" id="mainGrid"></main>
+
+        <aside class="service-sidebar">
+            <h2 class="sidebar-title">Системні параметри</h2>
+            <div id="sideGrid" style="display:contents;"></div>
+        </aside>
+    </div>
+
+    <script>
+        const mainParams = [
+            { id: 'rpm', name: 'Оберти двигуна', unit: 'об/хв', min: 1450, max: 1550, norm: [1480, 1520], dec: 0 },
+            { id: 'pwr', name: 'Вихідна потужність', unit: 'кВт', min: 0, max: 500, norm: [100, 450], dec: 1 },
+            { id: 'vlt', name: 'Напруга генератора', unit: 'В', min: 380, max: 420, norm: [390, 410], dec: 1 },
+            { id: 'tmp', name: 'Температура охолоджуючої рідини', unit: '°C', min: 70, max: 95, norm: [75, 90], dec: 1 },
+            { id: 'oil', name: 'Тиск масла', unit: 'бар', min: 3, max: 6, norm: [4, 5], dec: 1 }
+        ];
+
+        const serviceParams = [
+            { id: 'fuel', name: 'Рівень палива', unit: '%', min: 0, max: 100, norm: [15, 100], dec: 0, bar: true },
+            { id: 'batt', name: 'Заряд батареї', unit: 'В', min: 11, max: 14.5, norm: [12, 14], dec: 1, bar: true },
+            { id: 'hrs', name: 'Час роботи двигуна', unit: 'год', min: 2, max: 1000, norm: [10, 500], dec: 1, bar: false }
+        ];
+
+        function buildCards(data, containerId, isSidebar) {
+            const container = document.getElementById(containerId);
+            data.forEach(p => {
+                const html = `
+                    <section class="card ${isSidebar ? 'card-sidebar' : ''}" id="card-${p.id}">
+                        <div id="led-${p.id}" class="led"></div>
+                        <span class="label">${p.name}</span>
+                        <div class="val-wrap">
+                            <span id="val-${p.id}" class="val">--</span>
+                            <span class="unit">${p.unit}</span>
+                        </div>
+                        ${p.bar ? `<div class="p-bar-bg"><div id="bar-${p.id}" class="p-bar-fill"></div></div>` : ''}
+                    </section>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+		function update() {
+    			[...mainParams, ...serviceParams].forEach(p => {
+			        const val = (Math.random() * (p.max - p.min) + p.min);
+        			const el = document.getElementById(`val-${p.id}`);
+        			if (el) el.textContent = val.toFixed(p.dec);
+        			const led = document.getElementById(`led-${p.id}`);
+        			const fill = document.getElementById(`bar-${p.id}`);
+			if (led) {
+            			led.className = 'led';
+            			let statusClass = 'status-warning';
+            			let barColor = 'var(--status-warn)';
+				const isCriticalLow = (p.id === 'fuel' && val < 10) || (p.id === 'batt' && val < 11.5);
+			if (isCriticalLow || val < p.min || val > p.max) {
+                		statusClass = 'status-danger';
+                		barColor = 'var(--status-crit)';
+            		} else if (val >= p.norm[0] && val <= p.norm[1]) {
+                		statusClass = 'status-normal';
+                		barColor = 'var(--status-ok)';
+            		}
+			led.classList.add(statusClass);
+			if (p.bar && fill) {
+				const pct = ((val - p.min) / (p.max - p.min)) * 100;
+				fill.style.width = pct + '%';
+                		fill.style.backgroundColor = barColor;
+            			}
+        		}
+    		});
+    		document.getElementById('sync').textContent = new Date().toLocaleTimeString();
+	}
+
+        let timer = null;
+        document.getElementById('btnAuto').onclick = function() {
+            if(timer) {
+                clearInterval(timer); 
+                timer = null;
+                this.textContent = "Автоновлення"; 
+                this.classList.remove('btn-active');
+            } else {
+                update(); 
+                timer = setInterval(update, 3000);
+                this.textContent = "Зупинити"; 
+                this.classList.add('btn-active');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            buildCards(mainParams, 'mainGrid', false);
+            buildCards(serviceParams, 'sideGrid', true);
+            update();
+            document.getElementById('btnManual').onclick = update;
+        });
+    </script>
+</body>
+</html>
