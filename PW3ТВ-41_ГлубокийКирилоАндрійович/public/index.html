@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система обліку споживання</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Система обліку споживання</h1>
+        </header>
+
+        <main>
+            <section class="registration-form">
+                <h2>Реєстрація даних</h2>
+                <form id="meterForm">
+                    <div class="form-group">
+                        <label>Особовий рахунок:</label>
+                        <input type="text" name="account" placeholder="Наприклад: 12345678" 
+                               required pattern="\d{8}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ПІБ споживача:</label>
+                        <input type="text" name="fullName" placeholder="Мельник Микола Миколайович" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Адреса об'єкта:</label>
+                        <input type="text" name="address" placeholder="м. Київ, вул. Київська, буд. 12, кв. 988" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тип ресурсу:</label>
+                        <select name="meterType">
+                            <option value="Електроенергія">Електроенергія (кВт-год)</option>
+                            <option value="Вода">Вода (м³)</option>
+                            <option value="Газ">Природний газ (м³)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Поточний показник:</label>
+                        <input type="number" name="reading" step="0.01" 
+                               placeholder="0000.00" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Зареєструвати запис</button>
+                </form>
+
+                <div id="statusMsg" class="message"></div>
+            </section>
+
+            <section class="data-section">
+                <h2>Журнал споживачів</h2>
+                <div id="dataList"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

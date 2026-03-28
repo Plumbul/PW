@@ -1,0 +1,103 @@
+:root {
+    --blue: #0057b7;
+    --yellow: #ffd700;
+    --white: #ffffff;
+    --light-gray: #f4f7f6;
+    --text: #333;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: var(--light-gray);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+}
+
+.container { max-width: 1000px; margin: 0 auto; }
+
+header {
+    background: var(--blue);
+    color: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    border-bottom: 5px solid var(--yellow);
+    margin-bottom: 25px;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 25px;
+}
+
+section {
+    background: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+h2 { color: var(--blue); border-bottom: 2px solid var(--yellow); 
+	padding-bottom: 5px; }
+
+.form-group { margin-bottom: 15px; }
+label { display: block; margin-bottom: 5px; font-weight: bold; }
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+input:focus { border-color: var(--blue); outline: none; }
+
+.btn-primary {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.btn-primary:hover { background: #004494; }
+
+.record-card {
+    background: var(--white);
+    border: 1px solid #eee;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 6px solid var(--blue);
+    transition: 0.3s;
+}
+
+.record-card:hover { border-left-color: var(--yellow); transform: translateX(5px); }
+
+.record-card h3 { margin: 0; color: var(--blue); font-size: 1.1em; }
+
+.btn-del {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    float: right;
+}
+
+.message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+    background: var(--yellow);
+    color: var(--blue);
+    font-weight: bold;
+}
