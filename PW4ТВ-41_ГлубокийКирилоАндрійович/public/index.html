@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>ГЕС REST API - Панель управління</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; height: 100vh; margin: 0; background-color: #f0f2f5; }
+        header { background: #0057b7; color: white; padding: 15px 25px; border-bottom: 5px solid #ffd700; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        main { display: flex; flex: 1; overflow: hidden; }
+        .panel { padding: 25px; overflow-y: auto; }
+        .left { width: 55%; border-right: 1px solid #ddd; background: white; }
+        .right { width: 45%; background: #f8f9fa; display: flex; flex-direction: column; gap: 20px; }
+        
+        h2 { color: #0057b7; border-bottom: 2px solid #ffd700; padding-bottom: 8px; margin-top: 0; }
+        .card { border: 1px solid #0057b7; padding: 15px; margin-bottom: 12px; border-radius: 8px; background: #fff; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .monitor-box { background: #0057b7; color: white; padding: 20px; border-radius: 8px; font-size: 1.1em; line-height: 1.6; }
+        pre { background: #1e1e1e; color: #4af626; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', monospace; font-size: 13px; flex: 1; }
+        
+        .form-group { background: #e9ecef; padding: 15px; border-radius: 8px; }
+        input { display: block; margin-bottom: 10px; width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #ffd700; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; color: #0057b7; border-radius: 4px; transition: 0.3s; }
+        button:hover { background: #e6c200; }
+        .btn-del { background: #ff4d4d; color: white; margin-left: 5px; }
+        .btn-del:hover { background: #cc0000; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Система моніторингу ГЕС</h1>
+</header>
+
+<main>
+    <div class="panel left">
+        <h2>Зареєстровані об'єкти</h2>
+        <div id="list">Завантаження...</div>
+        
+        <div class="form-group">
+            <h3>Реєстрація нової ГЕС</h3>
+            <input type="text" id="form-name" placeholder="Назва станції">
+            <input type="number" id="form-p-inst" placeholder="Встановлена потужність (МВт)">
+            <input type="number" id="form-p-curr" placeholder="Поточна потужність (МВт)">
+            <input type="number" id="form-level" placeholder="Рівень води (м)">
+            <input type="number" id="form-flow" placeholder="Витрата води (м³/с)">
+            <input type="number" id="form-turb" placeholder="Кількість гідроагрегатів">
+            <input type="number" id="form-eff" placeholder="Ефективність (%)">
+            <input type="number" id="form-vol" placeholder="Об'єм водосховища (млн м³)">
+            <button onclick="createPlant()">Зареєструвати об'єкт (POST)</button>
+        </div>
+    </div>
+
+    <div class="panel right">
+        <h2>Оперативний моніторинг</h2>
+        <div id="monitor" class="monitor-box">Виберіть об'єкт для зчитування телеметрії...</div>
+        
+        <h2>Відповідь сервера (JSON)</h2>
+        <pre id="response">{ "status": "waiting" }</pre>
+    </div>
+</main>
+
+<script>
+    const resBox = document.getElementById('response');
+    const monBox = document.getElementById('monitor');
+
+    async function getPlants() {
+        try {
+            const res = await fetch('/api/hydro-plants');
+            const data = await res.json();
+            
+            const listDiv = document.getElementById('list');
+            if (data.length === 0) {
+                listDiv.innerHTML = "<p>Об'єктів не знайдено</p>";
+                return;
+            }
+
+            listDiv.innerHTML = data.map(p => `
+                <div class="card">
+                    <strong>${p.name}</strong> (ID: ${p.id})<br>
+                    <div style="margin-top: 10px;">
+                        <button onclick="getOne(${p.id})">Моніторинг</button>
+                        <button onclick="getWater(${p.id})">Гідрологія</button>
+                        <button class="btn-del" onclick="deletePlant(${p.id})">Видалити</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            resBox.innerText = "Помилка завантаження списку";
+        }
+    }
+
+    async function getOne(id) {
+        const res = await fetch(`/api/hydro-plants/${id}`);
+        const data = await res.json();
+        resBox.innerText = JSON.stringify(data, null, 2);
+        monBox.innerHTML = `
+            <strong>Об'єкт:</strong> ${data.name}<br>
+            <strong>Потужність:</strong> ${data.currentPower} / ${data.installedPower} МВт<br>
+            <strong>Агрегатів:</strong> ${data.turbineCount} шт.<br>
+            <strong>Ефективність:</strong> ${data.turbineEfficiency}%
+        `;
+    }
+
+    async function getWater(id) {
+        const res = await fetch(`/api/hydro-plants/${id}/water-data`);
+        const data = await res.json();
+        resBox.innerText = JSON.stringify(data, null, 2);
+        monBox.innerHTML = `
+            <strong>Гідрологія станції (ID: ${id})</strong><hr>
+            Рівень води: ${data.waterLevel} м<br>
+            Витрата: ${data.waterFlow} м³/с<br>
+            Об'єм: ${data.reservoirVolume} млн м³
+        `;
+    }
+
+    async function createPlant() {
+        const body = {
+            name: document.getElementById('form-name').value,
+            installedPower: Number(document.getElementById('form-p-inst').value),
+            currentPower: Number(document.getElementById('form-p-curr').value),
+            waterLevel: Number(document.getElementById('form-level').value),
+            waterFlow: Number(document.getElementById('form-flow').value),
+            turbineCount: Number(document.getElementById('form-turb').value),
+            turbineEfficiency: Number(document.getElementById('form-eff').value),
+            reservoirVolume: Number(document.getElementById('form-vol').value)
+        };
+
+        if (!body.name) return alert("Введіть назву ГЕС");
+
+        const res = await fetch('/api/hydro-plants', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        resBox.innerText = JSON.stringify(data, null, 2);
+        
+        document.querySelectorAll('input').forEach(i => i.value = '');
+        
+        getPlants();
+    }
+
+    async function deletePlant(id) {
+        if (!confirm("Видалити цей об'єкт?")) return;
+        const res = await fetch(`/api/hydro-plants/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        resBox.innerText = JSON.stringify(data, null, 2);
+        getPlants();
+    }
+
+    getPlants();
+</script>
+
+</body>
+</html>
