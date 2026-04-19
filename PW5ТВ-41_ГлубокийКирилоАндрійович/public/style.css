@@ -1,0 +1,71 @@
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #343a40;
+}
+
+h1 {
+    font-weight: 700;
+    color: #2c3e50;
+    letter-spacing: -0.5px;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #ffffff;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+}
+
+.progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.5s ease-in-out, background-color 0.3s ease;
+}
+
+#status {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 20px;
+}
+
+.badge-info-custom {
+    background-color: #eef2ff;
+    color: #4e73df;
+    font-weight: 600;
+}
+
+canvas {
+    max-height: 300px;
+    margin-top: 20px;
+}
+
+.bg-danger {
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    .col-md-4 {
+        margin-bottom: 10px;
+    }
+}
