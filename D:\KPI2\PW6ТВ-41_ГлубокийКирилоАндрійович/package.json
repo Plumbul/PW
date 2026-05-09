@@ -1,0 +1,17 @@
+{
+  "name": "power-grid-dispatcher",
+  "version": "1.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.22.1",
+    "express-rate-limit": "^6.7.0",
+    "express-session": "^1.19.0",
+    "express-validator": "^7.0.0",
+    "helmet": "^7.2.0",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
+    "ws": "^8.20.0"
+  }
+}
